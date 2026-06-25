@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: sar_network_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sar_network
+      POSTGRES_PASSWORD: sar_network
+      POSTGRES_DB: sar_network
+    ports:
+      - "5432:5432"
+    volumes:
+      - sar_network_pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: sar_network_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  sar_network_pg_data:

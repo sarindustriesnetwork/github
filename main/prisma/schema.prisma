@@ -1,0 +1,309 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  BANNED
+}
+
+enum StoreStatus {
+  DRAFT
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum PluginStatus {
+  AVAILABLE
+  INSTALLED
+  ACTIVE
+  INACTIVE
+  ERROR
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ReportStatus {
+  OPEN
+  INVESTIGATING
+  ACTION_REQUIRED
+  RESOLVED
+  IGNORED
+  ESCALATED
+}
+
+model User {
+  id                String               @id @default(cuid())
+  name              String
+  email             String               @unique
+  passwordHash      String
+  status            UserStatus           @default(ACTIVE)
+  emailVerifiedAt   DateTime?
+  lastLoginAt       DateTime?
+  twoFactorEnabled  Boolean              @default(false)
+  roles             UserRole[]
+  stores            StoreMember[]
+  sessions          AuthSession[]
+  loginEvents       LoginEvent[]
+  passwordResets    PasswordResetToken[]
+  auditLogs         AuditLog[]
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+}
+
+model AuthSession {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model LoginEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  email     String
+  status    String
+  reason    String?
+  ipAddress String?
+  userAgent String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  users       UserRole[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  description String?
+  roles       RolePermission[]
+  createdAt   DateTime         @default(now())
+}
+
+model UserRole {
+  id     String @id @default(cuid())
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model Store {
+  id          String          @id @default(cuid())
+  name        String
+  slug        String          @unique
+  status      StoreStatus     @default(DRAFT)
+  members     StoreMember[]
+  domains     StoreDomain[]
+  themeVersions StoreThemeVersion[]
+  pages       StorePage[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model StoreMember {
+  id        String   @id @default(cuid())
+  userId    String
+  storeId   String
+  role      String   @default("OWNER")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, storeId])
+}
+
+model StoreDomain {
+  id            String   @id @default(cuid())
+  storeId       String
+  domain        String   @unique
+  type          String   @default("FREE_SUBDOMAIN")
+  status        String   @default("PENDING")
+  sslStatus     String   @default("PENDING")
+  isPrimary     Boolean  @default(false)
+  dnsVerifiedAt DateTime?
+  store         Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model StoreTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  description String
+  thumbnail   String?
+  isFree      Boolean  @default(true)
+  isPremium   Boolean  @default(false)
+  themeConfig Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StoreThemeVersion {
+  id            String   @id @default(cuid())
+  storeId       String
+  versionNumber Int
+  themeConfig   Json
+  status        String   @default("DRAFT")
+  store         Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  publishedAt   DateTime?
+}
+
+model StorePage {
+  id        String   @id @default(cuid())
+  storeId   String
+  title     String
+  slug      String
+  content   Json
+  status    String   @default("DRAFT")
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, slug])
+}
+
+model Plugin {
+  id          String            @id @default(cuid())
+  name        String
+  slug        String            @unique
+  category    String
+  description String
+  status      PluginStatus      @default(AVAILABLE)
+  version     String            @default("1.0.0")
+  installed   InstalledPlugin[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model InstalledPlugin {
+  id        String       @id @default(cuid())
+  pluginId  String
+  status    PluginStatus @default(INSTALLED)
+  settings  Json?
+  plugin    Plugin       @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  logs      PluginLog[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model PluginLog {
+  id                String          @id @default(cuid())
+  installedPluginId String
+  level             String          @default("info")
+  message           String
+  context           Json?
+  installedPlugin   InstalledPlugin @relation(fields: [installedPluginId], references: [id], onDelete: Cascade)
+  createdAt         DateTime        @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  module    String
+  targetId  String?
+  oldValue  Json?
+  newValue  Json?
+  ipAddress String?
+  userAgent String?
+  actor     User?    @relation(fields: [actorId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model ErrorLog {
+  id        String   @id @default(cuid())
+  traceId   String   @unique
+  code      String
+  message   String
+  module    String?
+  component String?
+  severity  Severity @default(LOW)
+  context   Json?
+  createdAt DateTime @default(now())
+}
+
+model DiagnosisReport {
+  id                String       @id @default(cuid())
+  reportId          String       @unique
+  title             String
+  module            String
+  component         String?
+  severity          Severity     @default(MEDIUM)
+  status            ReportStatus @default(OPEN)
+  summary           String
+  rootCause         String?
+  impact            String?
+  evidence          Json?
+  recommendedAction String?
+  actionTaken       String?
+  assignedTo        String?
+  resolvedAt        DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

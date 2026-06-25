@@ -1,0 +1,2 @@
+Put the newest SAR INDUSTRIES NETWORK updated project ZIP file in this folder.
+Then double-click AUTO_UPDATE_FROM_UPLOAD_WINDOWS.bat from the project root.
