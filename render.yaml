@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: sar-industries-network
+    env: node
+    plan: free
+    buildCommand: npm install --registry=https://registry.npmjs.org/ && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.20.0
+      - key: DEFAULT_ADMIN_EMAIL
+        value: admin@sarindustriesnetwork.com
+      - key: DEFAULT_ADMIN_PASSWORD
+        sync: false
