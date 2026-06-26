@@ -9,7 +9,9 @@ on:
 
 jobs:
   build:
+    name: Typecheck and Build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,10 +22,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install --registry=https://registry.npmjs.org/
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Build
-        run: npm run build
+      - name: Verify project
+        run: npm run check
         env:
           DEFAULT_ADMIN_EMAIL: admin@sarindustriesnetwork.com
           DEFAULT_ADMIN_PASSWORD: build-check-placeholder
