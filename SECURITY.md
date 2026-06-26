@@ -1,21 +1,30 @@
 # Security Policy
 
-## Supported Versions
+## Secret handling
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Never commit real credentials, admin passwords, database URLs, access tokens, API keys, private keys, or production environment files.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+Use environment variables for secrets:
 
-## Reporting a Vulnerability
+```txt
+DEFAULT_ADMIN_PASSWORD
+DATABASE_URL
+API_KEYS
+SERVICE_TOKENS
+```
 
-Use this section to tell people how to report a vulnerability.
+## Reporting security issues
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Open a private communication channel with the project owner before sharing sensitive security details publicly.
+
+## Production requirements
+
+Before production launch:
+
+- Replace all local test secrets.
+- Use a strong admin password.
+- Add database-backed sessions.
+- Add rate limiting for auth routes.
+- Add audit logging for admin actions.
+- Enable Render environment secrets.
+- Enable domain HTTPS.
