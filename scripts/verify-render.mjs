@@ -30,9 +30,11 @@ const checks = [
   { path: "/", expected: [200], label: "Landing page" },
   { path: "/api/health", expected: [200], label: "Health API", json: true },
   { path: "/api/deployment/status", expected: [200], label: "Deployment status API", json: true },
+  { path: "/api/admin/stores", expected: [200], label: "Stores API", json: true },
   { path: "/login", expected: [200], label: "Login page" },
   { path: "/admin", expected: [200, 307, 308], label: "Admin page" },
   { path: "/admin/users", expected: [200, 307, 308], label: "Users page" },
+  { path: "/admin/stores", expected: [200, 307, 308], label: "Stores page" },
   { path: "/admin/security", expected: [200, 307, 308], label: "Security/RBAC page" },
   { path: "/dashboard/store-builder", expected: [200, 307, 308], label: "Store Builder page" }
 ];
