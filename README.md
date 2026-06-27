@@ -6,7 +6,7 @@ Copyright 2026 SAR INDUSTRIES NETWORK. All rights reserved.
 
 ## Current build
 
-Step 2.3 includes:
+Step 2.3.3 includes:
 
 - Next.js App Router foundation
 - Auth login API
@@ -18,8 +18,11 @@ Step 2.3 includes:
 - Store Builder starter
 - Demo storefront and live preview routes
 - Render full-stack deployment configuration
-- GitHub Actions build verification
-- Windows one-click local setup
+- GitHub Actions CI/CD automation
+- Render deploy hook CLI
+- Live Render verification CLI
+- Platform preflight audit
+- Windows one-click local setup, deploy, and verification helpers
 
 ## Repository
 
@@ -77,23 +80,46 @@ DEFAULT_ADMIN_PASSWORD=your-local-admin-secret
 /store/demo-store
 /preview/demo-store
 /api/health
+/api/deployment/status
 /api/auth/me
 ```
 
 ## Build verification
 
-GitHub Actions workflow:
+Run:
+
+```bash
+npm run preflight
+npm run check
+```
+
+`npm run check` runs:
+
+```txt
+preflight audit -> TypeScript typecheck -> Next.js production build
+```
+
+## CI/CD automation
+
+Workflow:
 
 ```txt
 .github/workflows/build.yml
 ```
 
-It runs:
+On push or pull request it runs:
 
 ```bash
 npm install --registry=https://registry.npmjs.org/
-npm run typecheck
-npm run build
+npm run check
+```
+
+On push to `main`, it can also trigger Render deployment and live verification when these GitHub Actions secrets are configured:
+
+```txt
+RENDER_DEPLOY_HOOK_URL=<Render deploy hook URL>
+RENDER_URL=https://github-ufs3.onrender.com
+RENDER_VERIFY_REQUIRED=true optional
 ```
 
 ## Render deployment
@@ -103,21 +129,53 @@ Use Render Web Service for the current full-stack Next.js app.
 ```txt
 Build Command: npm install --registry=https://registry.npmjs.org/ && npm run build
 Start Command: npm run start
+Health Check Path: /api/health
 ```
 
 Required Render environment variables:
 
 ```txt
 NODE_VERSION=20.20.0
+NODE_ENV=production
 DEFAULT_ADMIN_EMAIL=admin@sarindustriesnetwork.com
 DEFAULT_ADMIN_PASSWORD=your-secure-render-secret
 ```
 
 The repository includes `render.yaml` for Blueprint deployment.
 
+## Render CLI helpers
+
+Trigger deploy manually:
+
+```bash
+npm run deploy:render -- <Render deploy hook URL> --required
+```
+
+Verify live app:
+
+```bash
+npm run verify:render -- https://github-ufs3.onrender.com
+```
+
+Windows helpers:
+
+```txt
+DEPLOY_RENDER_WINDOWS.bat
+VERIFY_RENDER_WINDOWS.bat
+```
+
 ## Cloudflare Pages plan
 
 Cloudflare Pages should be used later after splitting the app into a frontend-only package. The current repository has API routes, so Render is the correct first deployment target.
+
+Future split:
+
+```txt
+frontend -> Cloudflare Pages
+backend/API/auth -> Render
+storage -> Cloudflare R2
+postgres -> Supabase or Neon
+```
 
 ## Security note
 
