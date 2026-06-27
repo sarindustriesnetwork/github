@@ -23,13 +23,28 @@ Step 2.6 Windows 11 localhost build includes:
 - Windows 11 one-click installer and launcher
 - Chrome auto-open support
 - Localhost verification script
-- Cloud hosting configuration removed
+- GitHub Pages static preview
 
 ## Repository
 
 ```txt
 https://github.com/sarindustriesnetwork/github
 ```
+
+## GitHub Pages test link
+
+```txt
+https://sarindustriesnetwork.github.io/github/
+```
+
+GitHub Pages preview source:
+
+```txt
+github-pages/
+.github/workflows/github-pages.yml
+```
+
+The GitHub Pages version is a static browser preview for testing the UI, store registry, admin preview, security preview, and browser-side store creation. Server API routes still run in the Windows localhost version.
 
 ## One-click Windows 11 setup
 
@@ -115,18 +130,17 @@ Workflow:
 
 ```txt
 .github/workflows/build.yml
+.github/workflows/github-pages.yml
 ```
 
-On push or pull request it runs:
+The local build workflow runs:
 
 ```bash
 npm install --registry=https://registry.npmjs.org/
 npm run check
 ```
 
-## Local-only policy
-
-This repository is now cleaned for Windows 11 localhost development. Cloud hosting configuration files and external cloud backend helpers are not required for this build.
+The GitHub Pages workflow deploys the static preview from `github-pages/`.
 
 ## Security note
 
