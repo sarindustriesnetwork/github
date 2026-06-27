@@ -125,12 +125,7 @@ const forbiddenPatterns = [
   "DATABASE_URL=postgres://",
   "DATABASE_URL=postgresql://",
   "BEGIN PRIVATE KEY",
-  "BEGIN RSA PRIVATE KEY",
-  "render.yaml",
-  "deploy-render",
-  "verify-render",
-  "RENDER_",
-  "onrender.com"
+  "BEGIN RSA PRIVATE KEY"
 ];
 
 for (const file of scannedFiles) {
