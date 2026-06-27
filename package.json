@@ -1,6 +1,6 @@
 {
   "name": "sar-industries-network-platform",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "private": true,
   "engines": {
     "node": ">=20.0.0"
@@ -14,7 +14,9 @@
     "preflight": "node scripts/preflight.mjs",
     "check": "npm run preflight && npm run typecheck && npm run build",
     "deploy:render": "node scripts/deploy-render.mjs",
-    "verify:render": "node scripts/verify-render.mjs"
+    "verify:render": "node scripts/verify-render.mjs",
+    "nuclear": "python scripts/sar_nuclear_manager.py",
+    "nuclear:all": "python scripts/sar_nuclear_manager.py all"
   },
   "dependencies": {
     "next": "14.2.35",
