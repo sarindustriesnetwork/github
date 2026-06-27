@@ -2,77 +2,65 @@
 
 ## Current readiness
 
-Step 2.4 Store Management Core is now implemented as a deployment-safe MVP module.
+Step 2.5 Firebase Backend Integration is now prepared as the active backend direction.
 
 Run these checks:
 
 ```bash
 npm run preflight
 npm run check
-npm run verify:render -- https://github-ufs3.onrender.com
+npm run verify:firebase -- your-firebase-app-url
 ```
 
 ## Completed phase
 
-**Step 2.4 — Store Management Core**
+**Step 2.5 — Firebase Backend Integration**
 
 Implemented:
 
-- Store registry data model
-- Store management admin page
-- Store create draft UI
-- Store owner assignment interaction
-- Store status control
-- Store profile inspection
-- Store audit trail display
-- Store metrics
-- Store API route
-- Deployment status integration
-- Live verification route coverage
-- Preflight audit coverage
+- Firebase App Hosting configuration
+- Firebase project configuration
+- Cloud Firestore rules
+- Cloud Firestore indexes
+- Firebase Admin SDK server helper
+- Firebase Web SDK client helper
+- Firestore-backed store repository
+- Firebase status API
+- Store API backend integration
+- Firebase live verification script
+- Python Firebase platform manager
 
 ## Next phase recommendation
 
-**Step 2.5 — Database Persistence Layer**
+**Step 2.6 — Firebase Auth and RBAC Persistence**
 
 Implement:
 
-- Prisma schema for stores
-- PostgreSQL database connection
-- Database-backed store CRUD
-- Owner relationship persistence
-- Store audit log persistence
+- Firebase Auth login flow
+- Session cookie verification
+- Admin custom claims
+- Firestore user profile persistence
+- Role persistence
 - Store permission guards
-- Server-side protected actions
-- Render database environment setup
-- Database migration automation
-
-## Development rules
-
-Before each new phase:
-
-1. Run `npm run check` locally.
-2. Confirm GitHub Actions passes.
-3. Confirm Render deploy succeeds.
-4. Confirm live Render verification passes.
-5. Update audit and deployment docs if infrastructure changes.
+- Store audit log persistence
+- Emulator Suite testing flow
 
 ## Current deployment target
 
 ```txt
-Full-stack app -> Render
-Future frontend-only split -> Cloudflare Pages
+Full-stack app -> Firebase App Hosting
+Backend data -> Cloud Firestore
+Local test backend -> Firebase Emulator Suite
 ```
 
 ## Ready criteria
 
-The project is ready for Step 2.5 when:
+The project is ready for Step 2.6 when:
 
-- GitHub Actions CI/CD completes.
-- Render deployment is successful.
+- GitHub Actions build completes.
+- Firebase App Hosting rollout succeeds.
 - `/api/health` returns `ok:true`.
-- `/api/deployment/status` returns `ok:true` and `secretsExposed:false`.
+- `/api/deployment/status` returns `ok:true`.
+- `/api/firebase/status` returns `ok:true`.
 - `/api/admin/stores` returns `ok:true`.
 - `/admin/stores` loads.
-- Login page loads.
-- Admin pages load or redirect as expected.
