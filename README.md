@@ -6,7 +6,7 @@ Copyright 2026 SAR INDUSTRIES NETWORK. All rights reserved.
 
 ## Current build
 
-Step 2.3.3 includes:
+Step 2.3.4 includes:
 
 - Next.js App Router foundation
 - Auth login API
@@ -22,7 +22,8 @@ Step 2.3.3 includes:
 - Render deploy hook CLI
 - Live Render verification CLI
 - Platform preflight audit
-- Windows one-click local setup, deploy, and verification helpers
+- All-in-one Python platform manager
+- Windows one-click local setup, deploy, verification, and platform manager helpers
 
 ## Repository
 
@@ -50,6 +51,41 @@ Open:
 
 ```txt
 http://localhost:3000
+```
+
+## All-in-one Python platform manager
+
+Main file:
+
+```txt
+scripts/sar_nuclear_manager.py
+```
+
+Windows launcher:
+
+```txt
+PLATFORM_MANAGER_WINDOWS.bat
+```
+
+Useful commands:
+
+```bash
+python scripts/sar_nuclear_manager.py audit
+python scripts/sar_nuclear_manager.py configure
+python scripts/sar_nuclear_manager.py install
+python scripts/sar_nuclear_manager.py build
+python scripts/sar_nuclear_manager.py verify --url https://github-ufs3.onrender.com
+python scripts/sar_nuclear_manager.py all --url https://github-ufs3.onrender.com --soft-verify
+```
+
+NPM shortcuts:
+
+```bash
+npm run nuclear -- audit
+npm run nuclear -- configure
+npm run nuclear -- build
+npm run nuclear -- verify --url https://github-ufs3.onrender.com
+npm run nuclear:all
 ```
 
 ## Manual local setup
@@ -162,6 +198,7 @@ Windows helpers:
 ```txt
 DEPLOY_RENDER_WINDOWS.bat
 VERIFY_RENDER_WINDOWS.bat
+PLATFORM_MANAGER_WINDOWS.bat
 ```
 
 ## Cloudflare Pages plan
@@ -179,4 +216,4 @@ postgres -> Supabase or Neon
 
 ## Security note
 
-Do not commit `.env`, real admin secrets, tokens, database URLs, API keys, or production credentials.
+Do not commit `.env`, real admin secrets, tokens, database URLs, API keys, deploy hook URLs, or production credentials.
