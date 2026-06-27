@@ -5,12 +5,11 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     app: BRAND.name,
-    build: "step-2.5-firebase-backend-integration",
-    hosting: "firebase-app-hosting",
+    build: "step-2.6-localhost-windows",
     runtime: "nodejs",
+    target: "localhost-windows-11",
     environment: process.env.NODE_ENV || "development",
     adminSecretConfigured: Boolean(process.env.DEFAULT_ADMIN_PASSWORD),
-    firebaseProjectConfigured: Boolean(process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT),
     timestamp: new Date().toISOString()
   });
 }
