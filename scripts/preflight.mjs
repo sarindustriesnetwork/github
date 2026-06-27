@@ -63,22 +63,29 @@ const requiredFiles = [
   "app/login/page.tsx",
   "app/admin/page.tsx",
   "app/admin/users/page.tsx",
+  "app/admin/stores/page.tsx",
   "app/admin/security/page.tsx",
   "app/dashboard/store-builder/page.tsx",
   "app/api/health/route.ts",
   "app/api/deployment/status/route.ts",
+  "app/api/admin/stores/route.ts",
   "app/api/auth/login/route.ts",
   "app/api/auth/logout/route.ts",
   "app/api/auth/me/route.ts",
+  "components/stores/StoreManagementClient.tsx",
+  "lib/stores.ts",
   "scripts/verify-render.mjs",
-  "scripts/deploy-render.mjs"
+  "scripts/deploy-render.mjs",
+  "scripts/preflight.mjs",
+  "scripts/sar_nuclear_manager.py",
+  "docs/STEP_2_4_STORE_MANAGEMENT_CORE.md"
 ];
 
 for (const file of requiredFiles) assertFile(file);
 
 if (exists("package.json")) {
   const pkg = readJson("package.json");
-  const requiredScripts = ["dev", "build", "start", "typecheck", "check", "preflight", "deploy:render", "verify:render"];
+  const requiredScripts = ["dev", "build", "start", "typecheck", "check", "preflight", "deploy:render", "verify:render", "nuclear", "nuclear:all"];
   for (const script of requiredScripts) {
     if (!pkg.scripts?.[script]) fail(`Missing package script: ${script}`);
   }
@@ -96,6 +103,7 @@ if (exists("render.yaml")) {
   if (!renderYaml.includes("env: node")) fail("render.yaml must use Node runtime.");
   if (!renderYaml.includes("npm install --registry=https://registry.npmjs.org/ && npm run build")) fail("render.yaml buildCommand is not aligned with project setup.");
   if (!renderYaml.includes("npm run start")) fail("render.yaml startCommand must run npm run start.");
+  if (!renderYaml.includes("healthCheckPath: /api/health")) fail("render.yaml must define /api/health as health check path.");
   if (!renderYaml.includes("sync: false")) fail("render.yaml must keep DEFAULT_ADMIN_PASSWORD as a secret prompt using sync:false.");
 }
 
@@ -108,7 +116,9 @@ const forbiddenPatterns = [
   "_authToken=",
   "DEFAULT_ADMIN_PASSWORD=Admin@",
   "DATABASE_URL=postgres://",
-  "DATABASE_URL=postgresql://"
+  "DATABASE_URL=postgresql://",
+  "BEGIN PRIVATE KEY",
+  "BEGIN RSA PRIVATE KEY"
 ];
 
 for (const file of scannedFiles) {
