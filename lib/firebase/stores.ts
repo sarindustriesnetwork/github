@@ -1,3 +1,4 @@
+import type { DocumentData } from "firebase-admin/firestore";
 import type { StoreRecord } from "@/lib/stores";
 import { getStoreMetricsFor, stores as fallbackStores } from "@/lib/stores";
 import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase/admin";
@@ -20,7 +21,7 @@ function slugify(value: string) {
     .replace(/^-|-$/g, "") || "new-store";
 }
 
-function normalizeStore(id: string, data: FirebaseFirestore.DocumentData): StoreRecord {
+function normalizeStore(id: string, data: DocumentData): StoreRecord {
   return {
     id,
     slug: String(data.slug || id),
