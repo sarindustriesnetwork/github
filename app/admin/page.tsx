@@ -1,21 +1,25 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/branding";
+import { getStoreMetrics } from "@/lib/stores";
+
+const storeMetrics = getStoreMetrics();
 
 const stats = [
-  ["Platform Health", "96%", "Stable"],
-  ["Active Stores", "128", "MVP sample"],
+  ["Platform Health", "98%", "Render + CI/CD ready"],
+  ["Active Stores", String(storeMetrics.activeStores), "Step 2.4 live"],
+  ["Total Stores", String(storeMetrics.totalStores), "Managed registry"],
   ["Users", "342", "RBAC ready"],
   ["Plugin Status", "7", "Official modules"],
-  ["AI Copilot", "Ready", "Safe-action mode"],
-  ["Reliability", "Online", "Error boundary ready"]
+  ["Reliability", `${storeMetrics.averageHealth}%`, "Store health average"]
 ];
 
 const nav = [
   ["Overview", "/admin"],
   ["Users", "/admin/users"],
+  ["Stores", "/admin/stores"],
   ["Security / RBAC", "/admin/security"],
   ["Store Builder", "/dashboard/store-builder"],
-  ["Health API", "/api/health"]
+  ["Deployment Status", "/api/deployment/status"]
 ];
 
 export default function AdminPage() {
@@ -27,9 +31,9 @@ export default function AdminPage() {
         <p className="footer">{BRAND.copyright}</p>
       </aside>
       <main className="main">
-        <div className="topbar"><div><span className="badge">Step 2.3</span><h1>Super Admin Command Center</h1><p className="muted">Official white-label SaaS admin dashboard for {BRAND.name}.</p></div><Link className="btn" href="/login">Login</Link></div>
+        <div className="topbar"><div><span className="badge">Step 2.4</span><h1>Super Admin Command Center</h1><p className="muted">Official white-label SaaS admin dashboard with Store Management Core enabled.</p></div><Link className="btn primary" href="/admin/stores">Manage Stores</Link></div>
         <section className="grid">{stats.map(([title, value, note]) => <div className="card" key={title}><p className="muted">{title}</p><h2>{value}</h2><p className="muted">{note}</p></div>)}</section>
-        <section className="card" style={{ marginTop: 22 }}><h2>Next Build Queue</h2><p className="muted">Step 2.4 will add Store Management Core: create/update stores, owner assignment, store status, audit logs, and permission guards.</p></section>
+        <section className="card" style={{ marginTop: 22 }}><h2>Step 2.4 Store Management Core</h2><p className="muted">Create/update stores, assign owners, change store status, inspect store profiles, and review audit logs.</p><div className="actions" style={{ justifyContent: "flex-start" }}><Link className="btn primary" href="/admin/stores">Open Store Registry</Link><Link className="btn" href="/api/admin/stores">Open Stores API</Link></div></section>
       </main>
     </div>
   );
