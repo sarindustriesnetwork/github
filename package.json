@@ -1,6 +1,6 @@
 {
   "name": "sar-industries-network-platform",
-  "version": "2.3.4",
+  "version": "2.5.0-firebase",
   "private": true,
   "engines": {
     "node": ">=20.0.0"
@@ -13,12 +13,14 @@
     "typecheck": "tsc --noEmit",
     "preflight": "node scripts/preflight.mjs",
     "check": "npm run preflight && npm run typecheck && npm run build",
-    "deploy:render": "node scripts/deploy-render.mjs",
-    "verify:render": "node scripts/verify-render.mjs",
-    "nuclear": "python scripts/sar_nuclear_manager.py",
-    "nuclear:all": "python scripts/sar_nuclear_manager.py all"
+    "verify:firebase": "node scripts/verify-firebase.mjs",
+    "firebase:emulators": "firebase emulators:start --only firestore,auth,hosting",
+    "platform": "python scripts/sar_firebase_manager.py",
+    "platform:all": "python scripts/sar_firebase_manager.py all"
   },
   "dependencies": {
+    "firebase": "^12.0.0",
+    "firebase-admin": "^13.0.0",
     "next": "14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1"
@@ -29,6 +31,7 @@
     "@types/react-dom": "18.3.7",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.35",
+    "firebase-tools": "^14.0.0",
     "typescript": "5.9.2"
   }
 }
