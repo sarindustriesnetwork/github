@@ -2,65 +2,65 @@
 
 ## Current readiness
 
-Step 2.5 Firebase Backend Integration is now prepared as the active backend direction.
+Step 2.6 Windows 11 Localhost Runtime is now the active development direction.
 
 Run these checks:
 
 ```bash
 npm run preflight
 npm run check
-npm run verify:firebase -- your-firebase-app-url
+npm run verify:local
 ```
 
 ## Completed phase
 
-**Step 2.5 — Firebase Backend Integration**
+**Step 2.6 — Windows 11 Localhost Runtime**
 
 Implemented:
 
-- Firebase App Hosting configuration
-- Firebase project configuration
-- Cloud Firestore rules
-- Cloud Firestore indexes
-- Firebase Admin SDK server helper
-- Firebase Web SDK client helper
-- Firestore-backed store repository
-- Firebase status API
-- Store API backend integration
-- Firebase live verification script
-- Python Firebase platform manager
+- Cloud hosting config cleanup
+- Local-only package dependencies
+- Windows 11 one-click launcher
+- Chrome auto-open flow
+- Local health API
+- Local deployment status API
+- Local Store Management API
+- Localhost verification script
+- GitHub Actions localhost build audit
+- Local setup documentation
 
 ## Next phase recommendation
 
-**Step 2.6 — Firebase Auth and RBAC Persistence**
+**Step 2.7 — Local Persistence Layer**
 
 Implement:
 
-- Firebase Auth login flow
-- Session cookie verification
-- Admin custom claims
-- Firestore user profile persistence
-- Role persistence
-- Store permission guards
-- Store audit log persistence
-- Emulator Suite testing flow
+- Local JSON or SQLite storage
+- Persistent store create/update/delete
+- Persistent users and roles
+- Persistent audit logs
+- Export/import local data backup
+- Desktop-friendly admin settings
+- Windows startup helper
 
-## Current deployment target
+## Current runtime target
 
 ```txt
-Full-stack app -> Firebase App Hosting
-Backend data -> Cloud Firestore
-Local test backend -> Firebase Emulator Suite
+Full-stack app -> localhost:3000
+Operating system -> Windows 11
+Browser -> Chrome
+Backend mode -> local seed/runtime data
 ```
 
 ## Ready criteria
 
-The project is ready for Step 2.6 when:
+The project is ready for Step 2.7 when:
 
-- GitHub Actions build completes.
-- Firebase App Hosting rollout succeeds.
+- `npm run check` passes.
+- `npm run dev` starts successfully.
+- `npm run verify:local` passes.
+- `http://localhost:3000` opens in Chrome.
 - `/api/health` returns `ok:true`.
 - `/api/deployment/status` returns `ok:true`.
-- `/api/firebase/status` returns `ok:true`.
 - `/api/admin/stores` returns `ok:true`.
 - `/admin/stores` loads.
