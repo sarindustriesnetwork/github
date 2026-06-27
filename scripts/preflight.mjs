@@ -130,6 +130,7 @@ const forbiddenPatterns = [
 
 for (const file of scannedFiles) {
   const relative = path.relative(root, file).replace(/\\/g, "/");
+  if (relative === "scripts/preflight.mjs") continue;
   if (/\.(png|jpg|jpeg|webp|gif|ico|zip|pdf)$/i.test(relative)) continue;
   const content = fs.readFileSync(file, "utf8");
   for (const pattern of forbiddenPatterns) {
