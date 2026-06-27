@@ -44,7 +44,7 @@ export const stores: StoreRecord[] = [
     createdAt: "2026-06-01",
     updatedAt: "2026-06-27",
     features: ["Storefront", "Admin Panel", "Checkout Ready", "Plugin Slot"],
-    audit: ["Store activated", "Owner assigned", "Render deployment verified"]
+    audit: ["Store activated", "Owner assigned", "Firebase App Hosting migration prepared"]
   },
   {
     id: "store_demo_fashion",
@@ -86,11 +86,11 @@ export function getStoreBySlug(slug: string) {
   return stores.find((store) => store.slug === slug);
 }
 
-export function getStoreMetrics() {
-  const totalStores = stores.length;
-  const activeStores = stores.filter((store) => store.status === "ACTIVE").length;
-  const totalOrders = stores.reduce((sum, store) => sum + store.orders, 0);
-  const averageHealth = Math.round(stores.reduce((sum, store) => sum + store.health, 0) / Math.max(totalStores, 1));
+export function getStoreMetricsFor(storeList: StoreRecord[]) {
+  const totalStores = storeList.length;
+  const activeStores = storeList.filter((store) => store.status === "ACTIVE").length;
+  const totalOrders = storeList.reduce((sum, store) => sum + store.orders, 0);
+  const averageHealth = Math.round(storeList.reduce((sum, store) => sum + store.health, 0) / Math.max(totalStores, 1));
 
   return {
     totalStores,
@@ -98,4 +98,8 @@ export function getStoreMetrics() {
     totalOrders,
     averageHealth
   };
+}
+
+export function getStoreMetrics() {
+  return getStoreMetricsFor(stores);
 }
