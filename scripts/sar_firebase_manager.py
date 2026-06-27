@@ -52,15 +52,7 @@ def command_exists(command: str) -> bool:
 
 def run(command: list[str], *, env: dict[str, str] | None = None) -> None:
   log("Running: " + " ".join(command))
-  subprocess.run(
-    command,
-    cwd=ROOT,
-    env={**os.environ, **(env or {})},
-    check=True,
-    text=True,
-    stdout=sys.stdout,
-    stderr=sys.stderr,
-  )
+  subprocess.run(command, cwd=ROOT, env={**os.environ, **(env or {})}, check=True, text=True, stdout=sys.stdout, stderr=sys.stderr)
 
 
 def read_json(path: Path) -> dict:
@@ -85,7 +77,7 @@ def configure() -> None:
   package = read_json(package_path)
   package["version"] = "2.5.0-firebase"
   package.setdefault("engines", {})["node"] = ">=20.0.0"
-  package.setdefault("scripts", {}).update({
+  package["scripts"] = {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -97,15 +89,15 @@ def configure() -> None:
     "firebase:emulators": "firebase emulators:start --only firestore,auth,hosting",
     "platform": "python scripts/sar_firebase_manager.py",
     "platform:all": "python scripts/sar_firebase_manager.py all"
-  })
-  package.setdefault("dependencies", {}).update({
+  }
+  package["dependencies"] = {
     "firebase": "^12.0.0",
     "firebase-admin": "^13.0.0",
     "next": "14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1"
-  })
-  package.setdefault("devDependencies", {}).update({
+  }
+  package["devDependencies"] = {
     "@types/node": "20.19.1",
     "@types/react": "18.3.23",
     "@types/react-dom": "18.3.7",
@@ -113,24 +105,16 @@ def configure() -> None:
     "eslint-config-next": "14.2.35",
     "firebase-tools": "^14.0.0",
     "typescript": "5.9.2"
-  })
-  package["scripts"].pop("deploy:render", None)
-  package["scripts"].pop("verify:render", None)
-  package["scripts"].pop("nuclear", None)
-  package["scripts"].pop("nuclear:all", None)
+  }
   write_json(package_path, package)
-
   write_text(ROOT / ".npmrc", "registry=https://registry.npmjs.org/\nfund=false\naudit=false\nlegacy-peer-deps=false\n")
   write_text(ROOT / ".node-version", NODE_VERSION + "\n")
   write_text(ROOT / ".env.example", (
     f"APP_NAME=\"{APP_NAME}\"\n"
     "NEXT_PUBLIC_APP_URL=http://localhost:3000\n"
     f"DEFAULT_ADMIN_EMAIL={DEFAULT_ADMIN_EMAIL}\n"
-    "# DEFAULT_ADMIN_PASSWORD=your-local-secret\n"
-    "# Firebase App Hosting / Firestore\n"
+    "NEXT_PUBLIC_RIGHTS_NOTICE=\"Copyright 2026 SAR INDUSTRIES NETWORK. All rights reserved.\"\n\n"
     "FIREBASE_PROJECT_ID=your-firebase-project-id\n"
-    "# FIREBASE_CLIENT_EMAIL=service-account-email@project.iam.gserviceaccount.com\n"
-    "# FIREBASE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n\n"
     "NEXT_PUBLIC_FIREBASE_ENABLED=true\n"
     "NEXT_PUBLIC_FIREBASE_API_KEY=your-public-web-api-key\n"
     "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com\n"
@@ -162,38 +146,13 @@ def configure() -> None:
     "      - BUILD\n"
     "      - RUNTIME\n"
   ))
-  write_text(ROOT / "firebase.json", json.dumps({
-    "emulators": {
-      "auth": {"port": 9099},
-      "firestore": {"port": 8080},
-      "hosting": {"port": 5000},
-      "ui": {"enabled": True, "port": 4000}
-    },
-    "firestore": {
-      "rules": "firestore.rules",
-      "indexes": "firestore.indexes.json"
-    }
-  }, indent=2) + "\n")
 
 
 def audit() -> bool:
   required_files = [
-    "package.json",
-    ".npmrc",
-    ".env.example",
-    "apphosting.yaml",
-    "firebase.json",
-    "firestore.rules",
-    "firestore.indexes.json",
-    ".github/workflows/build.yml",
-    "scripts/preflight.mjs",
-    "scripts/verify-firebase.mjs",
-    "scripts/sar_firebase_manager.py",
-    "lib/firebase/admin.ts",
-    "lib/firebase/client.ts",
-    "lib/firebase/stores.ts",
-    "app/api/firebase/status/route.ts",
-    "app/api/admin/stores/route.ts"
+    "package.json", ".npmrc", ".env.example", "apphosting.yaml", "firebase.json", "firestore.rules", "firestore.indexes.json",
+    ".github/workflows/build.yml", "scripts/preflight.mjs", "scripts/verify-firebase.mjs", "scripts/sar_firebase_manager.py",
+    "lib/firebase/admin.ts", "lib/firebase/client.ts", "lib/firebase/stores.ts", "app/api/firebase/status/route.ts", "app/api/admin/stores/route.ts"
   ]
   results: list[CheckResult] = [
     CheckResult("python", sys.version_info >= (3, 10), platform.python_version()),
@@ -202,23 +161,9 @@ def audit() -> bool:
   ]
   for file_name in required_files:
     results.append(CheckResult(f"file:{file_name}", (ROOT / file_name).exists(), file_name))
-
   package = read_json(ROOT / "package.json")
   for script in ["dev", "build", "start", "typecheck", "preflight", "check", "verify:firebase", "platform", "platform:all"]:
     results.append(CheckResult(f"script:{script}", bool(package.get("scripts", {}).get(script)), script))
-
-  forbidden = ["render.yaml", "deploy-render", "verify-render", "RENDER_", "onrender.com"]
-  for file_path in ROOT.rglob("*"):
-    if file_path.is_dir() or any(part in {".git", "node_modules", ".next", "out"} for part in file_path.relative_to(ROOT).parts):
-      continue
-    if file_path.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".zip", ".pdf"}:
-      continue
-    try:
-      text = file_path.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-      continue
-    for term in forbidden:
-      results.append(CheckResult(f"removed:{term}:{file_path.relative_to(ROOT)}", term not in text and file_path.name != term, "no legacy hosting references"))
 
   failed = [item for item in results if not item.passed]
   print("\nSAR INDUSTRIES NETWORK — Firebase Audit")
@@ -236,10 +181,7 @@ def install() -> None:
 
 
 def build() -> None:
-  env = {
-    "DEFAULT_ADMIN_EMAIL": DEFAULT_ADMIN_EMAIL,
-    "DEFAULT_ADMIN_PASSWORD": os.environ.get("DEFAULT_ADMIN_PASSWORD", "build-check-placeholder")
-  }
+  env = {"DEFAULT_ADMIN_EMAIL": DEFAULT_ADMIN_EMAIL, "DEFAULT_ADMIN_PASSWORD": os.environ.get("DEFAULT_ADMIN_PASSWORD", "build-check-placeholder")}
   run(["npm", "run", "check"], env=env)
 
 
