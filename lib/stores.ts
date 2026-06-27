@@ -44,7 +44,7 @@ export const stores: StoreRecord[] = [
     createdAt: "2026-06-01",
     updatedAt: "2026-06-27",
     features: ["Storefront", "Admin Panel", "Checkout Ready", "Plugin Slot"],
-    audit: ["Store activated", "Owner assigned", "Firebase App Hosting migration prepared"]
+    audit: ["Store activated", "Owner assigned", "Windows localhost runtime prepared"]
   },
   {
     id: "store_demo_fashion",
