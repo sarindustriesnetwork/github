@@ -1,14 +1,19 @@
 {
   "name": "sar-industries-network-platform",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run build",
+    "preflight": "node scripts/preflight.mjs",
+    "check": "npm run preflight && npm run typecheck && npm run build",
+    "deploy:render": "node scripts/deploy-render.mjs",
     "verify:render": "node scripts/verify-render.mjs"
   },
   "dependencies": {
@@ -20,6 +25,8 @@
     "@types/node": "20.19.1",
     "@types/react": "18.3.23",
     "@types/react-dom": "18.3.7",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.35",
     "typescript": "5.9.2"
   }
 }
