@@ -1,22 +1,31 @@
 import { NextResponse } from "next/server";
-import { STORE_PLAN_OPTIONS, STORE_STATUS_OPTIONS } from "@/lib/stores";
-import { createStoreDraft, firebaseBackendStatus, listStores } from "@/lib/firebase/stores";
+import { getStoreMetrics, STORE_PLAN_OPTIONS, STORE_STATUS_OPTIONS, stores } from "@/lib/stores";
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-export async function GET() {
-  const result = await listStores();
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "new-store";
+}
 
+export async function GET() {
   return NextResponse.json({
     ok: true,
-    module: "firebase-store-management-core",
-    version: "2.5.0-firebase",
-    backend: firebaseBackendStatus(),
-    source: result.source,
-    metrics: result.metrics,
-    stores: result.stores,
+    module: "local-store-management-core",
+    version: "2.6.0-localhost-windows",
+    backend: {
+      mode: "local-seed-runtime",
+      persistentDatabase: false,
+      cloudIntegrations: false
+    },
+    source: "local-seed-data",
+    metrics: getStoreMetrics(),
+    stores,
     options: {
       status: STORE_STATUS_OPTIONS,
       plan: STORE_PLAN_OPTIONS
@@ -46,13 +55,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Owner email is invalid." }, { status: 422 });
   }
 
-  const result = await createStoreDraft({ name, ownerEmail, ownerName, industry, region });
+  const today = new Date().toISOString().slice(0, 10);
+  const store = {
+    id: `store_${Date.now()}`,
+    slug: slugify(name),
+    name,
+    industry,
+    status: "DRAFT",
+    plan: "FREE",
+    owner: {
+      name: ownerName || "Unassigned Owner",
+      email: ownerEmail || "owner@example.com",
+      role: "OWNER"
+    },
+    region,
+    revenue: "$0",
+    orders: 0,
+    health: 82,
+    createdAt: today,
+    updatedAt: today,
+    features: ["Store Builder", "Admin Panel", "Theme Draft"],
+    audit: ["Local store draft created", "Owner assigned", "Ready for localhost testing"]
+  };
 
   return NextResponse.json({
     ok: true,
-    message: result.source === "firebase" ? "Store created in Firestore." : "Store draft validated. Configure Firebase env to persist it in Firestore.",
-    backend: firebaseBackendStatus(),
-    source: result.source,
-    store: result.store
+    message: "Store draft validated in local runtime.",
+    backend: "local-seed-runtime",
+    store
   }, { status: 201 });
 }
