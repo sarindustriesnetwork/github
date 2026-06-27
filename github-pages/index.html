@@ -4,14 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SAR INDUSTRIES NETWORK — GitHub Pages Preview</title>
-  <meta name="description" content="Static GitHub Pages preview for SAR INDUSTRIES NETWORK." />
+  <meta name="description" content="Static GitHub Pages preview for SAR INDUSTRIES NETWORK SaaS admin platform." />
+  <meta name="theme-color" content="#070b16" />
+  <meta property="og:title" content="SAR INDUSTRIES NETWORK Preview" />
+  <meta property="og:description" content="Preview the SAR SaaS admin UI, store registry, security matrix, and builder prototype." />
+  <meta property="og:type" content="website" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
+  <a href="#view" class="skip-link">Skip to content</a>
   <div class="shell">
-    <aside class="sidebar">
-      <div class="brand"><div class="logo">SAR</div><span>SAR Preview</span></div>
-      <nav class="nav">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand"><div class="logo" aria-hidden="true">SAR</div><span>SAR Preview</span></div>
+      <nav class="nav" aria-label="Preview sections">
         <a href="#home" data-route="home" class="active">Home</a>
         <a href="#admin" data-route="admin">Admin</a>
         <a href="#stores" data-route="stores">Stores</a>
@@ -20,12 +25,12 @@
         <a href="#builder" data-route="builder">Store Builder</a>
         <a href="#status" data-route="status">Status</a>
       </nav>
-      <p class="footer">© 2026 SAR INDUSTRIES NETWORK</p>
+      <p class="footer">© 2026 SAR INDUSTRIES NETWORK<br />Static GitHub Pages preview</p>
     </aside>
     <main class="main">
-      <section class="hero">
+      <section class="hero" aria-labelledby="page-title">
         <span class="badge">GitHub Pages Static Preview</span>
-        <h1>SAR INDUSTRIES NETWORK</h1>
+        <h1 id="page-title">SAR INDUSTRIES NETWORK</h1>
         <p>Test the core SaaS admin UI from GitHub Pages. This preview runs fully in the browser using localStorage data.</p>
         <div class="actions">
           <a class="btn primary" href="#stores">Manage Stores</a>
@@ -33,7 +38,7 @@
         </div>
       </section>
 
-      <section id="view" class="view"></section>
+      <section id="view" class="view" aria-live="polite"></section>
     </main>
   </div>
 
