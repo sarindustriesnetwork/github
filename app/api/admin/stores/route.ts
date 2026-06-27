@@ -1,25 +1,22 @@
 import { NextResponse } from "next/server";
-import { getStoreMetrics, stores, STORE_PLAN_OPTIONS, STORE_STATUS_OPTIONS } from "@/lib/stores";
+import { STORE_PLAN_OPTIONS, STORE_STATUS_OPTIONS } from "@/lib/stores";
+import { createStoreDraft, firebaseBackendStatus, listStores } from "@/lib/firebase/stores";
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "") || "new-store";
-}
-
 export async function GET() {
+  const result = await listStores();
+
   return NextResponse.json({
     ok: true,
-    module: "store-management-core",
-    version: "2.4.0",
-    metrics: getStoreMetrics(),
-    stores,
+    module: "firebase-store-management-core",
+    version: "2.5.0-firebase",
+    backend: firebaseBackendStatus(),
+    source: result.source,
+    metrics: result.metrics,
+    stores: result.stores,
     options: {
       status: STORE_STATUS_OPTIONS,
       plan: STORE_PLAN_OPTIONS
@@ -49,31 +46,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Owner email is invalid." }, { status: 422 });
   }
 
-  const createdStore = {
-    id: `store_${Date.now()}`,
-    slug: slugify(name),
-    name,
-    industry,
-    status: "DRAFT",
-    plan: "FREE",
-    owner: {
-      name: ownerName || "Unassigned Owner",
-      email: ownerEmail || "owner@example.com",
-      role: "OWNER"
-    },
-    region,
-    revenue: "$0",
-    orders: 0,
-    health: 82,
-    createdAt: new Date().toISOString().slice(0, 10),
-    updatedAt: new Date().toISOString().slice(0, 10),
-    features: ["Store Builder", "Admin Panel", "Theme Draft"],
-    audit: ["Store draft created", "Owner assigned", "Ready for setup"]
-  };
+  const result = await createStoreDraft({ name, ownerEmail, ownerName, industry, region });
 
   return NextResponse.json({
     ok: true,
-    message: "Store draft validated and prepared. Database persistence will be added in the next backend phase.",
-    store: createdStore
+    message: result.source === "firebase" ? "Store created in Firestore." : "Store draft validated. Configure Firebase env to persist it in Firestore.",
+    backend: firebaseBackendStatus(),
+    source: result.source,
+    store: result.store
   }, { status: 201 });
 }
