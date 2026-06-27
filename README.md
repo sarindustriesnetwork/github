@@ -6,7 +6,7 @@ Copyright 2026 SAR INDUSTRIES NETWORK. All rights reserved.
 
 ## Current build
 
-Step 2.3.4 includes:
+Step 2.5 Firebase backend integration includes:
 
 - Next.js App Router foundation
 - Auth login API
@@ -14,16 +14,18 @@ Step 2.3.4 includes:
 - Logout API
 - RBAC/security page
 - User management page
-- Super Admin dashboard
+- Store Management Core
 - Store Builder starter
 - Demo storefront and live preview routes
-- Render full-stack deployment configuration
-- GitHub Actions CI/CD automation
-- Render deploy hook CLI
-- Live Render verification CLI
-- Platform preflight audit
-- All-in-one Python platform manager
-- Windows one-click local setup, deploy, verification, and platform manager helpers
+- Firebase App Hosting configuration
+- Cloud Firestore security rules and indexes
+- Firebase Admin SDK backend helper
+- Firebase Web SDK client helper
+- Firestore-backed store API with safe seed fallback
+- GitHub Actions Firebase build audit
+- Firebase live verification CLI
+- Python Firebase platform manager
+- Windows platform manager helper
 
 ## Repository
 
@@ -39,26 +41,18 @@ Double-click:
 START_HERE_WINDOWS.bat
 ```
 
-The script will:
-
-1. Check Node.js.
-2. Create `.env` from `.env.example`.
-3. Ask for a local admin secret if missing.
-4. Install packages from the public npm registry.
-5. Start the localhost server.
-
 Open:
 
 ```txt
 http://localhost:3000
 ```
 
-## All-in-one Python platform manager
+## Firebase platform manager
 
 Main file:
 
 ```txt
-scripts/sar_nuclear_manager.py
+scripts/sar_firebase_manager.py
 ```
 
 Windows launcher:
@@ -70,22 +64,22 @@ PLATFORM_MANAGER_WINDOWS.bat
 Useful commands:
 
 ```bash
-python scripts/sar_nuclear_manager.py audit
-python scripts/sar_nuclear_manager.py configure
-python scripts/sar_nuclear_manager.py install
-python scripts/sar_nuclear_manager.py build
-python scripts/sar_nuclear_manager.py verify --url https://github-ufs3.onrender.com
-python scripts/sar_nuclear_manager.py all --url https://github-ufs3.onrender.com --soft-verify
+python scripts/sar_firebase_manager.py audit
+python scripts/sar_firebase_manager.py configure
+python scripts/sar_firebase_manager.py install
+python scripts/sar_firebase_manager.py build
+python scripts/sar_firebase_manager.py verify --url <your Firebase App Hosting URL>
+python scripts/sar_firebase_manager.py all --url <your Firebase App Hosting URL> --soft-verify
 ```
 
 NPM shortcuts:
 
 ```bash
-npm run nuclear -- audit
-npm run nuclear -- configure
-npm run nuclear -- build
-npm run nuclear -- verify --url https://github-ufs3.onrender.com
-npm run nuclear:all
+npm run platform -- audit
+npm run platform -- configure
+npm run platform -- build
+npm run platform -- verify --url <your Firebase App Hosting URL>
+npm run platform:all
 ```
 
 ## Manual local setup
@@ -98,7 +92,7 @@ npm install --registry=https://registry.npmjs.org/
 npm run dev
 ```
 
-Add this to `.env` before login testing:
+Add a local admin password in `.env` before login testing:
 
 ```env
 DEFAULT_ADMIN_PASSWORD=your-local-admin-secret
@@ -111,12 +105,15 @@ DEFAULT_ADMIN_PASSWORD=your-local-admin-secret
 /login
 /admin
 /admin/users
+/admin/stores
 /admin/security
 /dashboard/store-builder
 /store/demo-store
 /preview/demo-store
 /api/health
 /api/deployment/status
+/api/firebase/status
+/api/admin/stores
 /api/auth/me
 ```
 
@@ -132,10 +129,46 @@ npm run check
 `npm run check` runs:
 
 ```txt
-preflight audit -> TypeScript typecheck -> Next.js production build
+Firebase preflight audit -> TypeScript typecheck -> Next.js production build
 ```
 
-## CI/CD automation
+## Firebase App Hosting deployment
+
+Use Firebase App Hosting for this full-stack Next.js app.
+
+Repository files:
+
+```txt
+apphosting.yaml
+firebase.json
+firestore.rules
+firestore.indexes.json
+```
+
+Required Firebase App Hosting variables:
+
+```txt
+DEFAULT_ADMIN_EMAIL=admin@sarindustriesnetwork.com
+DEFAULT_ADMIN_PASSWORD=your-secure-admin-secret
+FIREBASE_PROJECT_ID=your-firebase-project-id
+NEXT_PUBLIC_FIREBASE_ENABLED=true
+NEXT_PUBLIC_FIREBASE_API_KEY=your-public-web-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-firebase-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-web-app-id
+```
+
+## Firebase verification
+
+Verify the live app after Firebase App Hosting rollout:
+
+```bash
+npm run verify:firebase -- <your Firebase App Hosting URL>
+```
+
+## GitHub Actions
 
 Workflow:
 
@@ -146,74 +179,13 @@ Workflow:
 On push or pull request it runs:
 
 ```bash
+python scripts/sar_firebase_manager.py audit
 npm install --registry=https://registry.npmjs.org/
 npm run check
 ```
 
-On push to `main`, it can also trigger Render deployment and live verification when these GitHub Actions secrets are configured:
-
-```txt
-RENDER_DEPLOY_HOOK_URL=<Render deploy hook URL>
-RENDER_URL=https://github-ufs3.onrender.com
-RENDER_VERIFY_REQUIRED=true optional
-```
-
-## Render deployment
-
-Use Render Web Service for the current full-stack Next.js app.
-
-```txt
-Build Command: npm install --registry=https://registry.npmjs.org/ && npm run build
-Start Command: npm run start
-Health Check Path: /api/health
-```
-
-Required Render environment variables:
-
-```txt
-NODE_VERSION=20.20.0
-NODE_ENV=production
-DEFAULT_ADMIN_EMAIL=admin@sarindustriesnetwork.com
-DEFAULT_ADMIN_PASSWORD=your-secure-render-secret
-```
-
-The repository includes `render.yaml` for Blueprint deployment.
-
-## Render CLI helpers
-
-Trigger deploy manually:
-
-```bash
-npm run deploy:render -- <Render deploy hook URL> --required
-```
-
-Verify live app:
-
-```bash
-npm run verify:render -- https://github-ufs3.onrender.com
-```
-
-Windows helpers:
-
-```txt
-DEPLOY_RENDER_WINDOWS.bat
-VERIFY_RENDER_WINDOWS.bat
-PLATFORM_MANAGER_WINDOWS.bat
-```
-
-## Cloudflare Pages plan
-
-Cloudflare Pages should be used later after splitting the app into a frontend-only package. The current repository has API routes, so Render is the correct first deployment target.
-
-Future split:
-
-```txt
-frontend -> Cloudflare Pages
-backend/API/auth -> Render
-storage -> Cloudflare R2
-postgres -> Supabase or Neon
-```
+Firebase App Hosting should be connected directly to the GitHub repository and live branch. After that connection is complete, commits to the configured branch can create new Firebase rollouts automatically.
 
 ## Security note
 
-Do not commit `.env`, real admin secrets, tokens, database URLs, API keys, deploy hook URLs, or production credentials.
+Do not commit `.env`, service credentials, admin passwords, API keys that are not meant to be public, database credentials, or private deployment tokens.
