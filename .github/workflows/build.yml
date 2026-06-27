@@ -13,6 +13,7 @@ concurrency:
 
 env:
   NODE_VERSION: 20.20.0
+  PYTHON_VERSION: '3.11'
 
 jobs:
   validate:
@@ -22,11 +23,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
+      - name: Python platform manager audit
+        run: python scripts/sar_nuclear_manager.py audit
       - name: Install dependencies
         run: npm install --registry=https://registry.npmjs.org/
       - name: Run platform verification
@@ -45,6 +52,7 @@ jobs:
             docs/AUDIT_REPORT.md
             docs/DEPLOYMENT_CHECKLIST.md
             docs/RENDER_MASTER_PLAN.md
+            docs/NUCLEAR_MANAGER.md
           if-no-files-found: warn
 
   deploy-render:
