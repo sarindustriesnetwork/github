@@ -3,11 +3,15 @@ services:
     name: sar-industries-network
     env: node
     plan: free
+    autoDeploy: true
     buildCommand: npm install --registry=https://registry.npmjs.org/ && npm run build
     startCommand: npm run start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
         value: 20.20.0
+      - key: NODE_ENV
+        value: production
       - key: DEFAULT_ADMIN_EMAIL
         value: admin@sarindustriesnetwork.com
       - key: DEFAULT_ADMIN_PASSWORD
