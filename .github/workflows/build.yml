@@ -1,4 +1,4 @@
-name: SAR Firebase CI
+name: SAR Localhost CI
 
 on:
   workflow_dispatch:
@@ -8,54 +8,40 @@ on:
     branches: [main]
 
 concurrency:
-  group: sar-firebase-${{ github.ref }}
+  group: sar-localhost-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   NODE_VERSION: 20.20.0
-  PYTHON_VERSION: '3.11'
 
 jobs:
   validate:
-    name: Firebase Audit Typecheck Build
+    name: Localhost Audit Typecheck Build
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - name: Firebase platform audit
-        run: python scripts/sar_firebase_manager.py audit
       - name: Install dependencies
         run: npm install --registry=https://registry.npmjs.org/
       - name: Build check
         run: npm run check
         env:
           DEFAULT_ADMIN_EMAIL: admin@sarindustriesnetwork.com
-          DEFAULT_ADMIN_PASSWORD: build-check-placeholder
-          FIREBASE_PROJECT_ID: ci-build-placeholder
-          NEXT_PUBLIC_FIREBASE_ENABLED: "true"
+          DEFAULT_ADMIN_PASSWORD: ci-placeholder
       - name: Upload build metadata
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sar-firebase-build-metadata
+          name: sar-localhost-build-metadata
           path: |
             package.json
-            apphosting.yaml
-            firebase.json
-            firestore.rules
-            firestore.indexes.json
-            docs/AUDIT_REPORT.md
-            docs/DEPLOYMENT_CHECKLIST.md
-            docs/FIREBASE_MIGRATION.md
-            docs/STEP_2_5_FIREBASE_BACKEND.md
+            README.md
+            docs/LOCAL_WINDOWS_11_SETUP.md
+            ONE_CLICK_WINDOWS_11.bat
           if-no-files-found: warn
