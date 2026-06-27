@@ -36,8 +36,16 @@ if not exist .env (
 
 findstr /C:"DEFAULT_ADMIN_PASSWORD=" .env >nul 2>nul
 if errorlevel 1 (
-  echo DEFAULT_ADMIN_PASSWORD=LocalAdmin@2026>>.env
-  echo Local admin password added to private .env file.
+  echo.
+  echo Create a private local admin password for localhost login.
+  set /p SAR_LOCAL_ADMIN_PASSWORD=Enter local admin password: 
+  if "!SAR_LOCAL_ADMIN_PASSWORD!"=="" (
+    echo Password cannot be empty.
+    pause
+    exit /b 1
+  )
+  echo DEFAULT_ADMIN_PASSWORD=!SAR_LOCAL_ADMIN_PASSWORD!>>.env
+  echo Local admin password saved only inside your private .env file.
 )
 
 echo.
