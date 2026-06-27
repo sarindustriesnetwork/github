@@ -1,4 +1,4 @@
-name: SAR Platform CI/CD
+name: SAR Firebase CI
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 concurrency:
-  group: sar-platform-${{ github.ref }}
+  group: sar-firebase-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -17,9 +17,9 @@ env:
 
 jobs:
   validate:
-    name: Audit, Typecheck and Build
+    name: Firebase Audit Typecheck Build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,69 +32,30 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - name: Python platform manager audit
-        run: python scripts/sar_nuclear_manager.py audit
+      - name: Firebase platform audit
+        run: python scripts/sar_firebase_manager.py audit
       - name: Install dependencies
         run: npm install --registry=https://registry.npmjs.org/
-      - name: Run platform verification
+      - name: Build check
         run: npm run check
         env:
           DEFAULT_ADMIN_EMAIL: admin@sarindustriesnetwork.com
           DEFAULT_ADMIN_PASSWORD: build-check-placeholder
-      - name: Upload build artifact metadata
+          FIREBASE_PROJECT_ID: ci-build-placeholder
+          NEXT_PUBLIC_FIREBASE_ENABLED: "true"
+      - name: Upload build metadata
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sar-platform-build-metadata
+          name: sar-firebase-build-metadata
           path: |
             package.json
-            render.yaml
+            apphosting.yaml
+            firebase.json
+            firestore.rules
+            firestore.indexes.json
             docs/AUDIT_REPORT.md
             docs/DEPLOYMENT_CHECKLIST.md
-            docs/RENDER_MASTER_PLAN.md
-            docs/NUCLEAR_MANAGER.md
+            docs/FIREBASE_MIGRATION.md
+            docs/STEP_2_5_FIREBASE_BACKEND.md
           if-no-files-found: warn
-
-  deploy-render:
-    name: Trigger Render Deploy
-    needs: validate
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - name: Trigger Render deploy hook when configured
-        run: npm run deploy:render
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-
-  verify-render:
-    name: Verify Render Live App
-    needs: deploy-render
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - name: Verify live Render routes
-        run: |
-          TARGET_URL="${RENDER_URL:-https://github-ufs3.onrender.com}"
-          echo "Verifying $TARGET_URL"
-          if [ "${RENDER_VERIFY_REQUIRED}" = "true" ]; then
-            npm run verify:render -- "$TARGET_URL"
-          else
-            npm run verify:render -- "$TARGET_URL" --soft
-          fi
-        env:
-          RENDER_URL: ${{ secrets.RENDER_URL }}
-          RENDER_VERIFY_REQUIRED: ${{ secrets.RENDER_VERIFY_REQUIRED }}
