@@ -55,7 +55,10 @@ const requiredFiles = [
   ".gitignore",
   "next.config.mjs",
   "tsconfig.json",
-  "render.yaml",
+  "apphosting.yaml",
+  "firebase.json",
+  "firestore.rules",
+  "firestore.indexes.json",
   "README.md",
   "SECURITY.md",
   ".github/workflows/build.yml",
@@ -68,27 +71,34 @@ const requiredFiles = [
   "app/dashboard/store-builder/page.tsx",
   "app/api/health/route.ts",
   "app/api/deployment/status/route.ts",
+  "app/api/firebase/status/route.ts",
   "app/api/admin/stores/route.ts",
   "app/api/auth/login/route.ts",
   "app/api/auth/logout/route.ts",
   "app/api/auth/me/route.ts",
   "components/stores/StoreManagementClient.tsx",
   "lib/stores.ts",
-  "scripts/verify-render.mjs",
-  "scripts/deploy-render.mjs",
+  "lib/firebase/admin.ts",
+  "lib/firebase/client.ts",
+  "lib/firebase/stores.ts",
+  "scripts/verify-firebase.mjs",
   "scripts/preflight.mjs",
-  "scripts/sar_nuclear_manager.py",
-  "docs/STEP_2_4_STORE_MANAGEMENT_CORE.md"
+  "scripts/sar_firebase_manager.py",
+  "docs/FIREBASE_MIGRATION.md",
+  "docs/STEP_2_5_FIREBASE_BACKEND.md"
 ];
 
 for (const file of requiredFiles) assertFile(file);
 
 if (exists("package.json")) {
   const pkg = readJson("package.json");
-  const requiredScripts = ["dev", "build", "start", "typecheck", "check", "preflight", "deploy:render", "verify:render", "nuclear", "nuclear:all"];
+  const requiredScripts = ["dev", "build", "start", "typecheck", "check", "preflight", "verify:firebase", "firebase:emulators", "platform", "platform:all"];
   for (const script of requiredScripts) {
     if (!pkg.scripts?.[script]) fail(`Missing package script: ${script}`);
   }
+  if (!pkg.dependencies?.firebase) fail("Missing Firebase web SDK dependency.");
+  if (!pkg.dependencies?.["firebase-admin"]) fail("Missing Firebase Admin SDK dependency.");
+  if (!pkg.devDependencies?.["firebase-tools"]) fail("Missing Firebase CLI dev dependency.");
   if (!pkg.engines?.node) warn("package.json does not define engines.node.");
 }
 
@@ -97,14 +107,11 @@ if (exists(".npmrc")) {
   if (!npmrc.includes("registry=https://registry.npmjs.org/")) fail(".npmrc must force the public npm registry.");
 }
 
-if (exists("render.yaml")) {
-  const renderYaml = read("render.yaml");
-  if (!renderYaml.includes("type: web")) fail("render.yaml must configure a Render web service.");
-  if (!renderYaml.includes("env: node")) fail("render.yaml must use Node runtime.");
-  if (!renderYaml.includes("npm install --registry=https://registry.npmjs.org/ && npm run build")) fail("render.yaml buildCommand is not aligned with project setup.");
-  if (!renderYaml.includes("npm run start")) fail("render.yaml startCommand must run npm run start.");
-  if (!renderYaml.includes("healthCheckPath: /api/health")) fail("render.yaml must define /api/health as health check path.");
-  if (!renderYaml.includes("sync: false")) fail("render.yaml must keep DEFAULT_ADMIN_PASSWORD as a secret prompt using sync:false.");
+if (exists("apphosting.yaml")) {
+  const appHosting = read("apphosting.yaml");
+  if (!appHosting.includes("runConfig:")) fail("apphosting.yaml must define Firebase App Hosting runConfig.");
+  if (!appHosting.includes("maxInstances:")) fail("apphosting.yaml must define maxInstances.");
+  if (!appHosting.includes("NEXT_PUBLIC_FIREBASE_ENABLED")) fail("apphosting.yaml must expose Firebase enabled flag.");
 }
 
 if (exists(".env")) warn("Local .env exists. Confirm it is not committed and does not contain production secrets.");
@@ -118,7 +125,12 @@ const forbiddenPatterns = [
   "DATABASE_URL=postgres://",
   "DATABASE_URL=postgresql://",
   "BEGIN PRIVATE KEY",
-  "BEGIN RSA PRIVATE KEY"
+  "BEGIN RSA PRIVATE KEY",
+  "render.yaml",
+  "deploy-render",
+  "verify-render",
+  "RENDER_",
+  "onrender.com"
 ];
 
 for (const file of scannedFiles) {
@@ -130,7 +142,7 @@ for (const file of scannedFiles) {
   }
 }
 
-console.log("SAR INDUSTRIES NETWORK — Preflight Audit");
+console.log("SAR INDUSTRIES NETWORK — Firebase Preflight Audit");
 console.log("Node:", process.version);
 console.log("Checked files:", requiredFiles.length);
 console.log("Warnings:", warnings.length);
@@ -142,4 +154,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("Preflight audit passed.");
+console.log("Firebase preflight audit passed.");
