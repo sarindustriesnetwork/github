@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { BRAND } from "@/lib/branding";
+import { getStoreMetrics } from "@/lib/stores";
 
 export async function GET() {
   const hasAdminSecret = Boolean(process.env.DEFAULT_ADMIN_PASSWORD);
@@ -10,11 +11,18 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     app: BRAND.name,
-    build: "step-2.3.1-render-master-plan",
+    build: "step-2.4-store-management-core",
     deploymentTarget,
     runtime: "nodejs",
     nodeVersion,
     environment: process.env.NODE_ENV || "development",
+    modules: {
+      auth: "ready",
+      rbac: "ready",
+      users: "ready",
+      stores: "step-2.4-ready"
+    },
+    storeMetrics: getStoreMetrics(),
     checks: {
       adminEmailConfigured: hasAdminEmail,
       adminSecretConfigured: hasAdminSecret,
@@ -25,11 +33,14 @@ export async function GET() {
       "/login",
       "/admin",
       "/admin/users",
+      "/admin/stores",
       "/admin/security",
       "/dashboard/store-builder",
       "/store/demo-store",
       "/preview/demo-store",
       "/api/health",
+      "/api/deployment/status",
+      "/api/admin/stores",
       "/api/auth/me"
     ],
     timestamp: new Date().toISOString()
