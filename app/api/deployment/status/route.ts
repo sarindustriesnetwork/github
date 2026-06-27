@@ -1,34 +1,35 @@
 import { NextResponse } from "next/server";
 import { BRAND } from "@/lib/branding";
 import { getStoreMetrics } from "@/lib/stores";
-import { firebaseBackendStatus } from "@/lib/firebase/stores";
 
 export async function GET() {
   const hasAdminSecret = Boolean(process.env.DEFAULT_ADMIN_PASSWORD);
   const hasAdminEmail = Boolean(process.env.DEFAULT_ADMIN_EMAIL);
   const nodeVersion = process.version;
-  const firebaseStatus = firebaseBackendStatus();
 
   return NextResponse.json({
     ok: true,
     app: BRAND.name,
-    build: "step-2.5-firebase-backend-integration",
-    deploymentTarget: "firebase-app-hosting",
+    build: "step-2.6-localhost-windows",
+    deploymentTarget: "localhost-windows-11",
     runtime: "nodejs",
     nodeVersion,
     environment: process.env.NODE_ENV || "development",
-    backend: firebaseStatus,
+    backend: {
+      mode: "local-seed-runtime",
+      cloudIntegrations: false,
+      externalDatabase: false
+    },
     modules: {
-      auth: "ready",
-      rbac: "ready",
-      users: "ready",
-      stores: "firebase-ready"
+      auth: "local-ready",
+      rbac: "local-ready",
+      users: "local-ready",
+      stores: "local-ready"
     },
     storeMetrics: getStoreMetrics(),
     checks: {
       adminEmailConfigured: hasAdminEmail,
       adminSecretConfigured: hasAdminSecret,
-      firebaseProjectConfigured: firebaseStatus.configured,
       secretsExposed: false
     },
     routes: [
@@ -43,7 +44,6 @@ export async function GET() {
       "/preview/demo-store",
       "/api/health",
       "/api/deployment/status",
-      "/api/firebase/status",
       "/api/admin/stores",
       "/api/auth/me"
     ],
